@@ -212,7 +212,9 @@ def create_bat_file(script_name:str, directory:str=None, venv_name:str='venv', b
 # Llama a la función
 #create_virtual_environment()
 #activate_virtual_environment()
+
 #create_default_gitignore()
 #create_requirements_file()
 #install_requirements()
+
 #create_bat_file() #Indica el nombre del script para crear el archivo .bat
