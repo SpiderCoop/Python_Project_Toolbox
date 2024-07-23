@@ -88,7 +88,6 @@ __pycache__/
 # Virtual environment
 venv/
 *.venv
-.env
 
 # Operating system files
 .DS_Store
@@ -114,6 +113,7 @@ config/credentials.yml
 
 # Peronsal files
 Project_toolbox.py
+.env
 *.pdf
 """
 
