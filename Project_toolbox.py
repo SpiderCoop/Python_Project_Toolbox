@@ -22,18 +22,35 @@ os.chdir(script_dir)
 # Funciones para ayudar en el inicio de un proyecto -------------------------------------------------------------------------
 
 # Funcion para instalar la libreria dada
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+def install_library(library_name, venv_path='venv'):
+    """Instala la librería especificada usando pip. 
+    Por defecto se instala en un entorno virtual."""
+    try:
+        if os.path.exists(venv_path):
+            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
+        else:
+            python_executable = sys.executable
+        
+        subprocess.check_call([python_executable, "-m", "pip", "install", library_name])
+        print(f"{library_name} instalado correctamente en {python_executable}.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error al instalar {library_name}. Detalles: {e}")
 
 
 # Funcion para revisar e instalar la libreria dada
-def check_installation(package):
+def check_installation(library_name, venv_path='venv'):
+    """Verifica si una librería está instalada. Si no lo está, la instala.
+    Por defecto se verifica la instalación en un entorno virtual."""
     try:
-        importlib.import_module(package)
-        print(f"{package} está instalado.")
-    except ImportError:
-        print(f"{package} no está instalado. Instalándolo ahora...")
-        install(package)
+        if os.path.exists(venv_path):
+            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
+            result = subprocess.run([python_executable, '-c', f'import {library_name}'], check=True)
+        else:
+            importlib.import_module(library_name)
+        print(f"{library_name} está instalado.")
+    except (ImportError, subprocess.CalledProcessError):
+        print(f"{library_name} no está instalado. Instalándolo ahora...")
+        install_library(library_name, venv_path)
 
 # Funcion para crear un ambiente virtual
 def create_virtual_environment(venv_name='venv', directory=None):
@@ -212,6 +229,9 @@ def create_bat_file(script_name:str, directory:str=None, venv_name:str='venv', b
 # Llama a la función
 #create_virtual_environment()
 #activate_virtual_environment()
+
+#install_library()
+#
 
 #create_default_gitignore()
 #create_requirements_file()
