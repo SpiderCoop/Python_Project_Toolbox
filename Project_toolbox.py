@@ -22,11 +22,11 @@ os.chdir(script_dir)
 # Funciones para ayudar en el inicio de un proyecto -------------------------------------------------------------------------
 
 # Funcion para instalar la libreria dada
-def install_library(library_name, venv_path='venv'):
+def install_library(library_name:str,on_venv:bool=True, venv_path:str='venv'):
     """Instala la librería especificada usando pip. 
     Por defecto se instala en un entorno virtual."""
     try:
-        if os.path.exists(venv_path):
+        if on_venv and os.path.exists(venv_path):
             python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
         else:
             python_executable = sys.executable
@@ -37,8 +37,24 @@ def install_library(library_name, venv_path='venv'):
         print(f"Error al instalar {library_name}. Detalles: {e}")
 
 
+# Funcion para desintalar la libreria dada
+def uninstall_library(library_name:str, from_venv:bool=True, venv_path:str='venv'):
+    """Desinstala la librería especificada usando pip.
+    Por defecto se desintala en un entorno virtual."""
+    try:
+        if from_venv and os.path.exists(venv_path):
+            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
+        else:
+            python_executable = sys.executable
+
+        subprocess.check_call([python_executable, "-m", "pip", "uninstall", "-y", library_name])
+        print(f"{library_name} desinstalado correctamente en {python_executable}.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error al desinstalar {library_name}. Detalles: {e}")
+
+
 # Funcion para revisar e instalar la libreria dada
-def check_installation(library_name, venv_path='venv'):
+def check_installation(library_name:str, venv_path:str='venv'):
     """Verifica si una librería está instalada. Si no lo está, la instala.
     Por defecto se verifica la instalación en un entorno virtual."""
     try:
@@ -53,7 +69,7 @@ def check_installation(library_name, venv_path='venv'):
         install_library(library_name, venv_path)
 
 # Funcion para crear un ambiente virtual
-def create_virtual_environment(venv_name='venv', directory=None):
+def create_virtual_environment(venv_name:str='venv', directory:str=None):
     # Definir la ruta del ambiente virtual
     venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
     
@@ -74,7 +90,7 @@ def create_virtual_environment(venv_name='venv', directory=None):
 # Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 # Esto cambia la configuracion, pero solo para el usuario actual, lo cual no necesita permisos de admin
 # Se puede desactivar con el comando deactivate en la terminal
-def activate_virtual_environment(venv_name='venv'):
+def activate_virtual_environment(venv_name:str='venv'):
     # Construye el comando para activar el entorno
     activate_command = f"{venv_name}\\Scripts\\activate.bat"
     
@@ -86,7 +102,7 @@ def activate_virtual_environment(venv_name='venv'):
         print("El script de activación no existe. ¿Está seguro de que el entorno virtual está creado?")
 
 # Funcion para crear un archivo de .gitignore con los patrones de archivos mas comunes
-def create_default_gitignore(directory=None):
+def create_default_gitignore(directory:str=None):
     # Definir la ruta al archivo .gitignore
     gitignore_path = '.gitignore' if directory is None else os.path.join(directory, '.gitignore')
     
@@ -147,7 +163,7 @@ Project_toolbox.py
 # Funciones para ayudar a compartir un proyecto -------------------------------------------------------------------------
 
 # Funcion para crear el archivo requirements con las librarias instaladas en el directorio
-def create_requirements_file(directory=None):
+def create_requirements_file(directory:str=None):
     # Define la ruta del archivo requirements.txt
     file_path = 'requirements.txt' if directory is None else os.path.join(directory, 'requirements.txt')
     
@@ -165,7 +181,7 @@ def create_requirements_file(directory=None):
 
 
 # Funcion para instalar las librarias especificadas en el archivo requirements
-def install_requirements(directory=None, on_venv:bool=True,venv_name='venv'):
+def install_requirements(directory:str=None, on_venv:bool=True,venv_name:str='venv'):
     # Ubicar el directorio del ambiente virtual
     venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
 
@@ -197,7 +213,7 @@ def install_requirements(directory=None, on_venv:bool=True,venv_name='venv'):
         print("El archivo requirements.txt no se encuentra en el directorio especificado.")
 
 # Funcion para crear archivo .bat que ejecute el script, este puede ayudar a automatizar su ejecucion usando el programador de tareas de windows
-def create_bat_file(script_name:str, directory:str=None, venv_name:str='venv', bat_file_name:str=None,):
+def create_bat_file(script_name:str, directory:str=None, venv_name:str='venv', bat_file_name:str=None):
     # Ruta al entorno virtual
     venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
 
