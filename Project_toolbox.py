@@ -241,7 +241,7 @@ def create_requirements_file(directory:str=None, from_venv:bool=True,venv_name:s
             python_executable = os.path.join(venv_path, 'bin', 'python') if os.name != 'nt' else os.path.join(venv_path, 'Scripts', 'python.exe')
             print('Ambiente virtual encontrado.')
         else:
-            print('Ambiente virtual no encontrado.')
+            raise FileNotFoundError(f'Ambiente virtual no encontrado en {venv_path}.')
 
     else:
         # Usar el Python del sistema
