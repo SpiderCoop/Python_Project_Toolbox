@@ -23,8 +23,14 @@ os.chdir(script_dir)
 
 # Funcion para instalar la libreria dada
 def install_library(library_name:str,on_venv:bool=True, venv_path:str='venv'):
-    """Instala la librería especificada usando pip. 
-    Por defecto se instala en un entorno virtual."""
+    """
+    Instala la librería especificada usando pip. 
+    Por defecto se instala en un entorno virtual.
+    
+    :param library_name: Nombre de la librería a instalar.
+    :param on_venv: Booleano que indica si se debe instalar en el entorno virtual.
+    :param venv_path: Ruta al entorno virtual.
+    """
     try:
         if on_venv and os.path.exists(venv_path):
             python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
@@ -36,11 +42,38 @@ def install_library(library_name:str,on_venv:bool=True, venv_path:str='venv'):
     except subprocess.CalledProcessError as e:
         print(f"Error al instalar {library_name}. Detalles: {e}")
 
+# Funcion para actualizar la libreria especificada
+def upgrade_library(library_name: str, on_venv: bool = True, venv_path: str = 'venv'):
+    """
+    Actualiza la librería especificada usando pip.
+    Por defecto se actualiza en un entorno virtual.
+
+    :param library_name: Nombre de la librería a actualizar.
+    :param on_venv: Booleano que indica si se debe actualizar en el entorno virtual.
+    :param venv_path: Ruta al entorno virtual.
+    """
+    try:
+        if on_venv and os.path.exists(venv_path):
+            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
+        else:
+            python_executable = sys.executable
+        
+        subprocess.check_call([python_executable, "-m", "pip", "install", "--upgrade", library_name])
+        print(f"{library_name} actualizado correctamente en {python_executable}.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error al actualizar {library_name}. Detalles: {e}")
+
 
 # Funcion para desintalar la libreria dada
 def uninstall_library(library_name:str, from_venv:bool=True, venv_path:str='venv'):
-    """Desinstala la librería especificada usando pip.
-    Por defecto se desintala en un entorno virtual."""
+    """
+    Desinstala la librería especificada usando pip.
+    Por defecto se desintala en un entorno virtual.
+    
+    :param library_name: Nombre de la librería a desinstalar.
+    :param from_venv: Booleano que indica si se debe desinstalar del entorno virtual.
+    :param venv_path: Ruta al entorno virtual.
+    """
     try:
         if from_venv and os.path.exists(venv_path):
             python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
@@ -55,8 +88,13 @@ def uninstall_library(library_name:str, from_venv:bool=True, venv_path:str='venv
 
 # Funcion para revisar e instalar la libreria dada
 def check_installation(library_name:str, venv_path:str='venv'):
-    """Verifica si una librería está instalada. Si no lo está, la instala.
-    Por defecto se verifica la instalación en un entorno virtual."""
+    """
+    Verifica si una librería está instalada. Si no lo está, la instala.
+    Por defecto se verifica la instalación en un entorno virtual.
+    
+    :param library_name: Nombre de la librería a verificar la instalacion.
+    :param venv_path: Ruta al entorno virtual.
+    """
     try:
         if os.path.exists(venv_path):
             python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
@@ -70,6 +108,13 @@ def check_installation(library_name:str, venv_path:str='venv'):
 
 # Funcion para crear un ambiente virtual
 def create_virtual_environment(venv_name:str='venv', directory:str=None):
+    """
+    Crea un entorno virtual en el directorio especificado.
+    Por defecto se crea en el directorio actual.
+    
+    :param venv_name: Nombre del entorno virtual.
+    :param directory: Ruta del directorio donde se creara el entorno virtual.
+    """
     # Definir la ruta del ambiente virtual
     venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
     
@@ -90,9 +135,15 @@ def create_virtual_environment(venv_name:str='venv', directory:str=None):
 # Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 # Esto cambia la configuracion, pero solo para el usuario actual, lo cual no necesita permisos de admin
 # Se puede desactivar con el comando deactivate en la terminal
-def activate_virtual_environment(venv_name:str='venv'):
+def activate_virtual_environment(venv_path:str='venv'):
+    """
+    Activa el entorno virtual especificado.
+    Por defecto se toma el del directorio actual.
+    
+    :param venv_path: Ruta del entorno virtual.
+    """
     # Construye el comando para activar el entorno
-    activate_command = f"{venv_name}\\Scripts\\activate.bat"
+    activate_command = f"{venv_path}\\Scripts\\activate.bat"
     
     # Verifica si el archivo de activación existe
     if os.path.exists(activate_command):
@@ -103,6 +154,11 @@ def activate_virtual_environment(venv_name:str='venv'):
 
 # Funcion para crear un archivo de .gitignore con los patrones de archivos mas comunes
 def create_default_gitignore(directory:str=None):
+    """
+    Crea un archivo .gitignore con contenido predeterminado.
+    
+    :param directory: Ruta del directorio donde se creara el archivo.
+    """
     # Definir la ruta al archivo .gitignore
     gitignore_path = '.gitignore' if directory is None else os.path.join(directory, '.gitignore')
     
@@ -164,6 +220,12 @@ Project_toolbox.py
 
 # Funcion para crear el archivo requirements con las librarias instaladas en el directorio
 def create_requirements_file(directory:str=None):
+    """
+    Crea un archivo de requirements con las librerias usadas en el proyecto.
+    Por defecto se toma aquellas instaladas en el entorno virtual.
+    
+    :param directory: Ruta del directorio donde se creara el entorno virtual.
+    """
     # Define la ruta del archivo requirements.txt
     file_path = 'requirements.txt' if directory is None else os.path.join(directory, 'requirements.txt')
     
@@ -182,6 +244,14 @@ def create_requirements_file(directory:str=None):
 
 # Funcion para instalar las librarias especificadas en el archivo requirements
 def install_requirements(directory:str=None, on_venv:bool=True,venv_name:str='venv'):
+    """
+    Instala las librerias especificadas en el archivo requirements que se encuentre en el directorio especificado.
+    Por defecto se instalan en el entorno virtual del mismo directorio.
+    
+    :param directory: Ruta del directorio de donde se toma el archivo requirements.
+    :param on_venv: Indicador de si se realizara sobre un entorno virtual.
+    :param venv_name: Nombre del entorno virtual.
+    """
     # Ubicar el directorio del ambiente virtual
     venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
 
@@ -214,6 +284,15 @@ def install_requirements(directory:str=None, on_venv:bool=True,venv_name:str='ve
 
 # Funcion para crear archivo .bat que ejecute el script, este puede ayudar a automatizar su ejecucion usando el programador de tareas de windows
 def create_bat_file(script_name:str, directory:str=None, venv_name:str='venv', bat_file_name:str=None):
+    """
+    Crea un archivo .bat que asiste en la ejecucion del script.
+    Por defecto se usa el entorno virtual para la ejecucion del script.
+    
+    :param script_name: Nombre del script que se quiere ejecutar
+    :param directory: Ruta del directorio de donde se toman los diferentes archivos.
+    :param venv_name: Nombre del entorno virtual.
+    :param bat_file_name: Nombre que se asigna al archivo .bat
+    """
     # Ruta al entorno virtual
     venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
 
@@ -247,7 +326,8 @@ def create_bat_file(script_name:str, directory:str=None, venv_name:str='venv', b
 #activate_virtual_environment()
 
 #install_library()
-#
+#upgrade_library()
+#check_installation()
 
 #create_default_gitignore()
 #create_requirements_file()
