@@ -219,21 +219,39 @@ Project_toolbox.py
 # Funciones para ayudar a compartir un proyecto -------------------------------------------------------------------------
 
 # Funcion para crear el archivo requirements con las librarias instaladas en el directorio
-def create_requirements_file(directory:str=None):
+def create_requirements_file(directory:str=None, from_venv:bool=True,venv_name:str='venv'):
     """
     Crea un archivo de requirements con las librerias usadas en el proyecto.
     Por defecto se toma aquellas instaladas en el entorno virtual.
     
     :param directory: Ruta del directorio donde se creara el entorno virtual.
+    :param from_venv: Indicador para tomar las librerias instaladas en un ambiente virtual.
+    :param venv_name: Nombre del entorno virtual.
     """
     # Define la ruta del archivo requirements.txt
     file_path = 'requirements.txt' if directory is None else os.path.join(directory, 'requirements.txt')
+    
+    # Determinar la ruta del ejecutable de Python
+    if from_venv:
+
+        # Ubicar el directorio del ambiente virtual
+        venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
+        if os.path.exists(venv_path):
+            # Ruta dentro del ambiente virtual
+            python_executable = os.path.join(venv_path, 'bin', 'python') if os.name != 'nt' else os.path.join(venv_path, 'Scripts', 'python.exe')
+            print('Ambiente virtual encontrado.')
+        else:
+            print('Ambiente virtual no encontrado.')
+
+    else:
+        # Usar el Python del sistema
+        python_executable = sys.executable
     
     try:
         # Abrir el archivo en el modo de escritura
         with open(file_path, 'w') as f:
             # Llamar a pip freeze y dirigir la salida al archivo
-            subprocess.check_call([sys.executable, '-m', 'pip', 'freeze'], stdout=f)
+            subprocess.check_call([python_executable, '-m', 'pip', 'freeze'], stdout=f)
         print(f'Archivo requirements.txt creado en {file_path}')
     except subprocess.CalledProcessError as e:
         print(f"Error al ejecutar pip freeze: {e}")
