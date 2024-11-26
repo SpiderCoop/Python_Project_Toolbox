@@ -275,16 +275,18 @@ def install_requirements(directory:str=None, on_venv:bool=True,venv_name:str='ve
 
     # Determinar la ruta del ejecutable de Python
     if on_venv:
-        # Evalua la existencia del ambiente virtual para entrar o crear
-        if os.path.exists(venv_path):
-            # Ruta dentro del ambiente virtual
-            python_executable = os.path.join(venv_path, 'bin', 'python') if os.name != 'nt' else os.path.join(venv_path, 'Scripts', 'python.exe')
-            print('Ambiente virtual encontrado.')
-
-        else:
+        # Evalua la existencia del ambiente virtual o lo crea
+        if not os.path.exists(venv_path):
             # Creacion de un ambiente virtual
             create_virtual_environment()
             print('Ambiente virtual no encontrado. Se ha creado un ambiente virtual.')
+
+        else:
+            print('Ambiente virtual encontrado.')
+        
+        # Ruta dentro del ambiente virtual
+        python_executable = os.path.join(venv_path, 'bin', 'python') if os.name != 'nt' else os.path.join(venv_path, 'Scripts', 'python.exe')
+        
     else:
         # Usar el Python del sistema
         python_executable = sys.executable
