@@ -21,137 +21,6 @@ os.chdir(script_dir)
 
 # Funciones para ayudar en el inicio de un proyecto -------------------------------------------------------------------------
 
-# Funcion para instalar la libreria dada
-def install_library(library_name:str,on_venv:bool=True, venv_path:str='venv'):
-    """
-    Instala la librería especificada usando pip. 
-    Por defecto se instala en un entorno virtual.
-    
-    :param library_name: Nombre de la librería a instalar.
-    :param on_venv: Booleano que indica si se debe instalar en el entorno virtual.
-    :param venv_path: Ruta al entorno virtual.
-    """
-    try:
-        if on_venv and os.path.exists(venv_path):
-            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
-        else:
-            python_executable = sys.executable
-        
-        subprocess.check_call([python_executable, "-m", "pip", "install", library_name])
-        print(f"{library_name} instalado correctamente en {python_executable}.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error al instalar {library_name}. Detalles: {e}")
-
-# Funcion para actualizar la libreria especificada
-def upgrade_library(library_name: str, on_venv: bool = True, venv_path: str = 'venv'):
-    """
-    Actualiza la librería especificada usando pip.
-    Por defecto se actualiza en un entorno virtual.
-
-    :param library_name: Nombre de la librería a actualizar.
-    :param on_venv: Booleano que indica si se debe actualizar en el entorno virtual.
-    :param venv_path: Ruta al entorno virtual.
-    """
-    try:
-        if on_venv and os.path.exists(venv_path):
-            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
-        else:
-            python_executable = sys.executable
-        
-        subprocess.check_call([python_executable, "-m", "pip", "install", "--upgrade", library_name])
-        print(f"{library_name} actualizado correctamente en {python_executable}.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error al actualizar {library_name}. Detalles: {e}")
-
-
-# Funcion para desintalar la libreria dada
-def uninstall_library(library_name:str, from_venv:bool=True, venv_path:str='venv'):
-    """
-    Desinstala la librería especificada usando pip.
-    Por defecto se desintala en un entorno virtual.
-    
-    :param library_name: Nombre de la librería a desinstalar.
-    :param from_venv: Booleano que indica si se debe desinstalar del entorno virtual.
-    :param venv_path: Ruta al entorno virtual.
-    """
-    try:
-        if from_venv and os.path.exists(venv_path):
-            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
-        else:
-            python_executable = sys.executable
-
-        subprocess.check_call([python_executable, "-m", "pip", "uninstall", "-y", library_name])
-        print(f"{library_name} desinstalado correctamente en {python_executable}.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error al desinstalar {library_name}. Detalles: {e}")
-
-
-# Funcion para revisar e instalar la libreria dada
-def check_installation(library_name:str, venv_path:str='venv'):
-    """
-    Verifica si una librería está instalada. Si no lo está, la instala.
-    Por defecto se verifica la instalación en un entorno virtual.
-    
-    :param library_name: Nombre de la librería a verificar la instalacion.
-    :param venv_path: Ruta al entorno virtual.
-    """
-    try:
-        if os.path.exists(venv_path):
-            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
-            result = subprocess.run([python_executable, '-c', f'import {library_name}'], check=True)
-        else:
-            importlib.import_module(library_name)
-        print(f"{library_name} está instalado.")
-    except (ImportError, subprocess.CalledProcessError):
-        print(f"{library_name} no está instalado. Instalándolo ahora...")
-        install_library(library_name, venv_path)
-
-# Funcion para crear un ambiente virtual
-def create_virtual_environment(venv_name:str='venv', directory:str=None):
-    """
-    Crea un entorno virtual en el directorio especificado.
-    Por defecto se crea en el directorio actual.
-    
-    :param venv_name: Nombre del entorno virtual.
-    :param directory: Ruta del directorio donde se creara el entorno virtual.
-    """
-    # Definir la ruta del ambiente virtual
-    venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
-    
-    if os.path.exists(venv_path):
-        print(f"El entorno virtual '{venv_name}' ya existe.")
-    else:
-        try:
-            print(f"Creando el entorno virtual '{venv_name}' en {venv_path}...")
-            subprocess.check_call([sys.executable, '-m', 'venv', venv_path])
-            print(f"El entorno virtual '{venv_name}' ha sido creado exitosamente.")
-        except subprocess.CalledProcessError as e:
-            print(f"Ha ocurrido un error al crear el entorno virtual. Detalles del error: {e}")
-
-
-# Funcion para activar el entorno virtual
-# Tener en cuenta que la configuracion de la politica de ejecucion de scripts debe  estar en RemoteSigned
-# En caso contrario, debe de entrar a la consola de Windows (cmd) y ejecutar el comando:
-# Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-# Esto cambia la configuracion, pero solo para el usuario actual, lo cual no necesita permisos de admin
-# Se puede desactivar con el comando deactivate en la terminal
-def activate_virtual_environment(venv_path:str='venv'):
-    """
-    Activa el entorno virtual especificado.
-    Por defecto se toma el del directorio actual.
-    
-    :param venv_path: Ruta del entorno virtual.
-    """
-    # Construye el comando para activar el entorno
-    activate_command = f"{venv_path}\\Scripts\\activate.bat"
-    
-    # Verifica si el archivo de activación existe
-    if os.path.exists(activate_command):
-        # Ejecuta el comando en el shell
-        os.system(f'cmd /k "{activate_command}"')
-    else:
-        print("El script de activación no existe. ¿Está seguro de que el entorno virtual está creado?")
-
 # Funcion para crear un archivo de .gitignore con los patrones de archivos mas comunes
 def create_default_gitignore(directory:str=None):
     """
@@ -215,8 +84,52 @@ Project_toolbox.py
         print(f"Error al crear el archivo .gitignore en {gitignore_path}: {e}")
 
 
+# Funcion para crear un ambiente virtual
+def create_virtual_environment(directory:str=None, venv_name:str='venv'):
+    """
+    Crea un entorno virtual en el directorio especificado.
+    Por defecto se crea en el directorio actual.
+    
+    :param venv_name: Nombre del entorno virtual.
+    :param directory: Ruta del directorio donde se creara el entorno virtual.
+    """
+    # Definir la ruta del ambiente virtual
+    venv_path = venv_name if directory is None else os.path.join(directory, venv_name)
+    
+    if os.path.exists(venv_path):
+        print(f"El entorno virtual '{venv_name}' ya existe.")
+    else:
+        try:
+            print(f"Creando el entorno virtual '{venv_name}' en {venv_path}...")
+            subprocess.check_call([sys.executable, '-m', 'venv', venv_path])
+            print(f"El entorno virtual '{venv_name}' ha sido creado exitosamente.")
+        except subprocess.CalledProcessError as e:
+            print(f"Ha ocurrido un error al crear el entorno virtual. Detalles del error: {e}")
 
-# Funciones para ayudar a compartir un proyecto -------------------------------------------------------------------------
+
+# Funcion para activar el entorno virtual
+# Tener en cuenta que la configuracion de la politica de ejecucion de scripts debe  estar en RemoteSigned
+# En caso contrario, debe de entrar a la consola de Windows (cmd) y ejecutar el comando:
+# Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+# Esto cambia la configuracion, pero solo para el usuario actual, lo cual no necesita permisos de admin
+# Se puede desactivar con el comando deactivate en la terminal
+def activate_virtual_environment(venv_path:str='venv'):
+    """
+    Activa el entorno virtual especificado.
+    Por defecto se toma el del directorio actual.
+    
+    :param venv_path: Ruta del entorno virtual.
+    """
+    # Construye el comando para activar el entorno
+    activate_command = f"{venv_path}\\Scripts\\activate.bat"
+    
+    # Verifica si el archivo de activación existe
+    if os.path.exists(activate_command):
+        # Ejecuta el comando en el shell
+        os.system(f'cmd /k "{activate_command}"')
+    else:
+        print("El script de activación no existe. ¿Está seguro de que el entorno virtual está creado?")
+
 
 # Funcion para crear el archivo requirements con las librarias instaladas en el directorio
 def create_requirements_file(directory:str=None, from_venv:bool=True,venv_name:str='venv'):
@@ -258,6 +171,111 @@ def create_requirements_file(directory:str=None, from_venv:bool=True,venv_name:s
     except Exception as ex:
         print(f"Error al crear el archivo requirements.txt en {file_path}: {ex}")
 
+
+# Funcion para instalar la libreria dada
+def install_library(library_name:str, on_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
+    """
+    Instala la librería especificada usando pip. 
+    Por defecto se instala en un entorno virtual y se actualiza el archivo requirements.
+    
+    :param library_name: Nombre de la librería a instalar.
+    :param on_venv: Booleano que indica si se debe instalar en el entorno virtual.
+    :param venv_path: Ruta al entorno virtual.
+    :param update_requirements: Booleano que indica si se debe actualizar el archivo requirements.
+    :param requirements_directory: Directorio en donde se guarda el archivo de requirements.
+    """
+    try:
+        if on_venv and os.path.exists(venv_path):
+            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
+        else:
+            python_executable = sys.executable
+        
+        subprocess.check_call([python_executable, "-m", "pip", "install", library_name])
+        print(f"{library_name} instalado correctamente en {python_executable}.")
+
+        if update_requirements:
+            create_requirements_file(directory=requirements_directory, from_venv=on_venv, venv_name=os.path.basename(venv_path))
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error al instalar {library_name}. Detalles: {e}")
+
+
+# Funcion para actualizar la libreria especificada
+def upgrade_library(library_name: str, on_venv: bool = True, venv_path: str = 'venv', update_requirements:bool=True, requirements_directory:str=None):
+    """
+    Actualiza la librería especificada usando pip.
+    Por defecto se actualiza en un entorno virtual.
+
+    :param library_name: Nombre de la librería a actualizar.
+    :param on_venv: Booleano que indica si se debe actualizar en el entorno virtual.
+    :param venv_path: Ruta al entorno virtual.
+    :param update_requirements: Booleano que indica si se debe actualizar el archivo requirements.
+    :param requirements_directory: Directorio en donde se guarda el archivo de requirements.
+    """
+    try:
+        if on_venv and os.path.exists(venv_path):
+            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
+        else:
+            python_executable = sys.executable
+        
+        subprocess.check_call([python_executable, "-m", "pip", "install", "--upgrade", library_name])
+        print(f"{library_name} actualizado correctamente en {python_executable}.")
+
+        if update_requirements:
+            create_requirements_file(directory=requirements_directory, from_venv=on_venv, venv_name=os.path.basename(venv_path))
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error al actualizar {library_name}. Detalles: {e}")
+
+
+# Funcion para desintalar la libreria dada
+def uninstall_library(library_name:str, from_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
+    """
+    Desinstala la librería especificada usando pip.
+    Por defecto se desintala en un entorno virtual.
+    
+    :param library_name: Nombre de la librería a desinstalar.
+    :param from_venv: Booleano que indica si se debe desinstalar del entorno virtual.
+    :param venv_path: Ruta al entorno virtual.
+    :param update_requirements: Booleano que indica si se debe actualizar el archivo requirements.
+    :param requirements_directory: Directorio en donde se guarda el archivo de requirements.
+    """
+    try:
+        if from_venv and os.path.exists(venv_path):
+            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
+        else:
+            python_executable = sys.executable
+
+        subprocess.check_call([python_executable, "-m", "pip", "uninstall", "-y", library_name])
+        print(f"{library_name} desinstalado correctamente en {python_executable}.")
+
+        if update_requirements:
+            create_requirements_file(directory=requirements_directory, from_venv=from_venv, venv_name=os.path.basename(venv_path))
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error al desinstalar {library_name}. Detalles: {e}")
+
+
+# Funcion para revisar e instalar la libreria dada
+def check_installation(library_name:str, on_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
+    """
+    Verifica si una librería está instalada. Si no lo está, la instala.
+    Por defecto se verifica la instalación en un entorno virtual.
+    
+    :param library_name: Nombre de la librería a verificar la instalacion.
+    :param venv_path: Ruta al entorno virtual.
+    """
+    try:
+        if on_venv and os.path.exists(venv_path):
+            python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
+            result = subprocess.run([python_executable, '-c', f'import {library_name}'], check=True)
+        else:
+            importlib.import_module(library_name)
+
+        print(f"{library_name} está instalado.")
+    except (ImportError, subprocess.CalledProcessError):
+        print(f"{library_name} no está instalado. Instalándolo ahora...")
+        install_library(library_name, on_venv, venv_path, update_requirements, requirements_directory)
 
 
 # Funcion para instalar las librarias especificadas en el archivo requirements
@@ -341,16 +359,69 @@ def create_bat_file(script_name:str, directory:str=None, venv_name:str='venv', b
     
     print(f'Archivo {bat_file_name} creado con éxito.')
 
-# Llama a la función
-#create_virtual_environment()
-#activate_virtual_environment()
 
-#install_library()
-#upgrade_library()
-#check_installation()
+# Funciones condensadas para iniciar nuevos proyectos, preparar archivos finales o poder usar el proyecto terminado 
+def new_project(directory:str=None, on_venv:bool=True, venv_name:str='venv'):
+    """
+    Configura un nuevo proyecto creando un entorno virtual y un archivo `.gitignore` por defecto.
 
-#create_default_gitignore()
-#create_requirements_file()
-#install_requirements()
+    Args:
+        directory (str, optional): Ruta al directorio del proyecto. Si es `None`, se usa el directorio actual.
+        on_venv (bool): Si es True, se crea un entorno virtual en el directorio especificado.
+        venv_name (str): Nombre del entorno virtual (por defecto, 'venv').
 
-#create_bat_file() #Indica el nombre del script para crear el archivo .bat
+    Returns:
+        None
+    """
+    if on_venv:
+        create_virtual_environment(directory, venv_name)
+    create_default_gitignore(directory)
+
+def project_ready(directory:str=None, from_venv:bool=True,venv_name:str='venv', bat_file:bool=True, script_name:str=None, bat_file_name:str=None):
+    """
+    Prepara el proyecto generando un archivo de requirements y opcionalmente un archivo `.bat` para ejecutar el script principal.
+
+    Args:
+        directory (str, optional): Ruta al directorio del proyecto. Si es `None`, se usa el directorio actual.
+        from_venv (bool): Si es True, genera el archivo de requirements desde el entorno virtual especificado.
+        venv_name (str): Nombre del entorno virtual del que se extraen los requirements (por defecto, 'venv').
+        bat_file (bool): Si es True, se genera un archivo `.bat` para ejecutar el script principal.
+        script_name (str, optional): Nombre del archivo principal del script que será ejecutado (requerido si `bat_file=True`).
+        bat_file_name (str, optional): Nombre del archivo `.bat` generado para ejecutar el script (requerido si `bat_file=True`).
+
+    Raises:
+        ValueError: Si `bat_file=True` y `script_name` o `bat_file_name` no están especificados.
+
+    Returns:
+        None
+    """
+    create_requirements_file(directory, from_venv,venv_name)
+    # Validar y generar archivo .bat si se requiere
+    if bat_file:
+        if not script_name or not bat_file_name:
+            raise ValueError("Cuando 'bat_file=True', es necesario especificar 'script_name' y 'bat_file_name'.")
+        create_bat_file(script_name, directory, venv_name, bat_file_name)
+
+
+# Llama a las funciones
+
+# new_project() # Por defecto crea un ambiente virtual y un archivo .gitignore generico
+
+# create_virtual_environment()
+# activate_virtual_environment()
+# create_default_gitignore()
+# install_library()
+# upgrade_library()
+# check_installation()
+
+
+# project_ready() # Por defecto crea el archivo de requirements de un ambiente virtual y el archivo bat del script especificado
+
+# create_requirements_file()
+# create_bat_file() #Indica el nombre del script para crear el archivo .bat
+
+
+# install_requirements() # Por defecto crea un ambiente virtual e instala las dependencias especificadas en el archivo de requirements
+
+
+
