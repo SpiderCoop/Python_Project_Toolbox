@@ -173,24 +173,30 @@ def create_requirements_file(directory:str=None, from_venv:bool=True,venv_name:s
 
 
 # Funcion para instalar la libreria dada
-def install_library(library_name:str, on_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
+def install_library(library_name:str|list, on_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
     """
     Instala la librería especificada usando pip. 
     Por defecto se instala en un entorno virtual y se actualiza el archivo requirements.
     
-    :param library_name: Nombre de la librería a instalar.
+    :param library_name: String o lista de nombre(s) de la librería(s) a instalar
     :param on_venv: Booleano que indica si se debe instalar en el entorno virtual.
     :param venv_path: Ruta al entorno virtual.
     :param update_requirements: Booleano que indica si se debe actualizar el archivo requirements.
     :param requirements_directory: Directorio en donde se guarda el archivo de requirements.
     """
+
+    if isinstance(library_name, str):
+        library_name = [library_name]
+    elif not isinstance(library_name, list):
+        raise ValueError("El parámetro 'libraries' debe ser un string o lista de nombre(s) de librería(s).")
+
     try:
         if on_venv and os.path.exists(venv_path):
             python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
         else:
             python_executable = sys.executable
         
-        subprocess.check_call([python_executable, "-m", "pip", "install", library_name])
+        subprocess.check_call([python_executable, "-m", "pip", "install", ' '.join(library_name)])
         print(f"{library_name} instalado correctamente en {python_executable}.")
 
         if update_requirements:
@@ -201,7 +207,7 @@ def install_library(library_name:str, on_venv:bool=True, venv_path:str='venv', u
 
 
 # Funcion para actualizar la libreria especificada
-def upgrade_library(library_name: str, on_venv: bool = True, venv_path: str = 'venv', update_requirements:bool=True, requirements_directory:str=None):
+def upgrade_library(library_name:str|list, on_venv: bool = True, venv_path: str = 'venv', update_requirements:bool=True, requirements_directory:str=None):
     """
     Actualiza la librería especificada usando pip.
     Por defecto se actualiza en un entorno virtual.
@@ -212,13 +218,19 @@ def upgrade_library(library_name: str, on_venv: bool = True, venv_path: str = 'v
     :param update_requirements: Booleano que indica si se debe actualizar el archivo requirements.
     :param requirements_directory: Directorio en donde se guarda el archivo de requirements.
     """
+
+    if isinstance(library_name, str):
+        library_name = [library_name]
+    elif not isinstance(library_name, list):
+        raise ValueError("El parámetro 'libraries' debe ser un string o lista de nombre(s) de librería(s).")
+
     try:
         if on_venv and os.path.exists(venv_path):
             python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
         else:
             python_executable = sys.executable
         
-        subprocess.check_call([python_executable, "-m", "pip", "install", "--upgrade", library_name])
+        subprocess.check_call([python_executable, "-m", "pip", "install", "--upgrade", ' '.join(library_name)])
         print(f"{library_name} actualizado correctamente en {python_executable}.")
 
         if update_requirements:
@@ -229,7 +241,7 @@ def upgrade_library(library_name: str, on_venv: bool = True, venv_path: str = 'v
 
 
 # Funcion para desintalar la libreria dada
-def uninstall_library(library_name:str, from_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
+def uninstall_library(library_name:str|list, from_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
     """
     Desinstala la librería especificada usando pip.
     Por defecto se desintala en un entorno virtual.
@@ -240,13 +252,19 @@ def uninstall_library(library_name:str, from_venv:bool=True, venv_path:str='venv
     :param update_requirements: Booleano que indica si se debe actualizar el archivo requirements.
     :param requirements_directory: Directorio en donde se guarda el archivo de requirements.
     """
+
+    if isinstance(library_name, str):
+        library_name = [library_name]
+    elif not isinstance(library_name, list):
+        raise ValueError("El parámetro 'libraries' debe ser un string o lista de nombre(s) de librería(s).")
+
     try:
         if from_venv and os.path.exists(venv_path):
             python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
         else:
             python_executable = sys.executable
 
-        subprocess.check_call([python_executable, "-m", "pip", "uninstall", "-y", library_name])
+        subprocess.check_call([python_executable, "-m", "pip", "uninstall", "-y", ' '.join(library_name)])
         print(f"{library_name} desinstalado correctamente en {python_executable}.")
 
         if update_requirements:
@@ -257,7 +275,7 @@ def uninstall_library(library_name:str, from_venv:bool=True, venv_path:str='venv
 
 
 # Funcion para revisar e instalar la libreria dada
-def check_installation(library_name:str, on_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
+def check_installation(library_name:str|list, on_venv:bool=True, venv_path:str='venv', update_requirements:bool=True, requirements_directory:str=None):
     """
     Verifica si una librería está instalada. Si no lo está, la instala.
     Por defecto se verifica la instalación en un entorno virtual.
@@ -265,10 +283,16 @@ def check_installation(library_name:str, on_venv:bool=True, venv_path:str='venv'
     :param library_name: Nombre de la librería a verificar la instalacion.
     :param venv_path: Ruta al entorno virtual.
     """
+
+    if isinstance(library_name, str):
+        library_name = [library_name]
+    elif not isinstance(library_name, list):
+        raise ValueError("El parámetro 'libraries' debe ser un string o lista de nombre(s) de librería(s).")
+
     try:
         if on_venv and os.path.exists(venv_path):
             python_executable = os.path.join(venv_path, 'Scripts', 'python.exe') if os.name == 'nt' else os.path.join(venv_path, 'bin', 'python')
-            result = subprocess.run([python_executable, '-c', f'import {library_name}'], check=True)
+            result = subprocess.run([python_executable, '-c', f'import {' '.join(library_name)}'], check=True)
         else:
             importlib.import_module(library_name)
 
