@@ -18,6 +18,10 @@ class Project:
         self.venv_path = self.venv_name if self.directory is None else os.path.join(self.directory, self.venv_name)
         self.requirements_path = requirements_name if self.directory is None else os.path.join(self.directory, requirements_name)
 
+        # Establece el directorio de trabajo de donde se encuentra el script
+        sys.path.append(self.directory)
+        os.chdir(self.directory)
+
     # Funcion para crear un archivo de .gitignore con los patrones de archivos mas comunes
     def create_default_gitignore(self):
         """
@@ -460,10 +464,6 @@ Project_toolbox.py
 
 # Obtener la ruta del directorio del archivo de script actual
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Establece el directorio de trabajo de donde se encuentra el script
-sys.path.append(script_dir)
-os.chdir(script_dir)
 
 # Uso del objeto Project
 project = Project(directory=script_dir, venv_name="venv", requirements_name='requirements.txt')
