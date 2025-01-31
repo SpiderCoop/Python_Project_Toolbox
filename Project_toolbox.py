@@ -239,9 +239,9 @@ Project_toolbox.py
             if library_name=='all':
                 subprocess.check_call([python_executable, "-m", "pip", "install", "--upgrade", "pip"])
                 subprocess.check_call([python_executable, "-m", "pip", "list", "--outdated"], text=True)
-                outdated_packages = subprocess.check_output([python_executable, "-m", "pip", "list", "--outdated"], text=True).splitlines()
+                outdated_packages = subprocess.check_output([python_executable, "-m", "pip", "list", "--outdated"], text=True).splitlines()[2:]
                 for package in outdated_packages:
-                    package_name = package.split('==')[0]
+                    package_name = package.split(' ')[0]
                     subprocess.check_call([python_executable, "-m", "pip", "install", "--upgrade", package_name])
                     print(f"{package_name} actualizado correctamente.")
             else:
